@@ -369,11 +369,16 @@ section {
     0 0 0 4px rgba(139,26,26,0.3);
   z-index: 5;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s;
+  transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s, opacity 0.4s;
 }
 .wax-seal:hover {
   transform: translate(-50%, -8%) scale(1.12) rotate(-8deg);
   box-shadow: 0 12px 36px rgba(192,57,107,0.55), 0 0 0 6px rgba(192,57,107,0.2);
+}
+.envelope.open .wax-seal {
+  transform: translate(-50%, -8%) scale(0);
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* animated ring pulse around seal */
