@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Love Letters — A Romantic Story</title>
+  <meta name="description" content="A beautiful, interactive love letter experience — with music, flowers, polaroids, and a starry wish just for you." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+
+  <!-- All styles live in style.css — edit that file to change any scene's look -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────
+     GLOBAL FIXED UI
+     (always visible, overlays every scene)
+───────────────────────────────────────────────────────── -->
+
+<!-- Floating hearts overlay (populated by script.js) -->
+<div id="hearts-container"></div>
+
+<!-- Ambient music toggle button (bottom-left) -->
+<button id="music-btn" title="Toggle ambient music" aria-label="Toggle ambient music">🎵</button>
+
+<!-- Scene navigation dots (right side) -->
+<nav id="nav-dots" aria-label="Scene navigation">
+  <div class="dot active" onclick="goTo(0)" title="The Envelope"></div>
+  <div class="dot"        onclick="goTo(1)" title="Love Postcard"></div>
+  <div class="dot"        onclick="goTo(2)" title="Virtual Bouquet"></div>
+  <div class="dot"        onclick="goTo(3)" title="Photograph"></div>
+  <div class="dot"        onclick="goTo(4)" title="Send Your Love"></div>
+  <div class="dot"        onclick="goTo(5)" title="A Wish For You"></div>
+</nav>
+
+<!-- Toast notification (shown after "Send Love") -->
+<div class="toast" id="toast">💌 Your love was sent! ♡</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 1 — The Sealed Envelope
+     ── Edit: headings, seal emoji, photo, audio file ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene1">
+  <div class="hearts-pattern"></div>
+
+  <!-- ══ HEADING BLOCK ══ -->
+  <div class="s1-heading-block">
+    <p class="scene1-eyebrow">✦ &nbsp; a love letter &nbsp; ✦</p>
+    <h1 class="scene1-main-heading">Between You,<br/>Me, and Infinity</h1>
+  </div>
+
+  <!-- ══ CONTENT ROW ══ -->
+  <div class="s1-layout">
+
+    <!-- ── LEFT: Framed Photo Panel ── -->
+    <div class="s1-photo-panel">
+      <div class="s1-photo-frame">
+        <div class="s1-frame-corner tl"></div>
+        <div class="s1-frame-corner tr"></div>
+        <div class="s1-frame-corner bl"></div>
+        <div class="s1-frame-corner br"></div>
+        <div class="s1-photo-inner-glow"></div>
+        <img src="2.jpeg" alt="Us ♡" class="s1-photo-img" draggable="false" />
+        <div class="s1-bookie-sticker">
+          <span>📖</span>
+          <span>our story &#x2665;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Envelope ── -->
+    <div class="envelope-wrapper">
+      <div class="envelope" id="env">
+        <!-- parchment heart spots -->
+        <div class="env-hearts" id="env-hearts"></div>
+        <!-- fold lines -->
+        <div class="env-fold-l"></div>
+        <div class="env-fold-r"></div>
+        <!-- flap lifts open on seal click -->
+        <div class="env-flap" id="env-flap"></div>
+        <!-- wax seal -->
+        <div class="wax-seal" id="wax-seal" title="Click to open!">
+          <span class="seal-inner">🌸</span>
+          <div class="seal-ring"></div>
+        </div>
+
+        <!-- ── Letter slides up from inside ── -->
+        <div class="env-letter" id="env-letter">
+          <div class="letter-top-deco">✦ ♡ ✦</div>
+          <p class="env-letter-text">why you !</p>
+          <p class="env-letter-sub">you make my heart do<br/>that thing it does &nbsp;🥺</p>
+
+          <!-- ── Premium Audio Player ── -->
+          <div class="audio-card">
+            <div class="audio-disc" id="audio-disc">
+              <div class="audio-disc-inner">♪</div>
+            </div>
+            <div class="audio-body">
+              <p class="audio-title">A song for you</p>
+              <p class="audio-sub">only for your ears &nbsp;♡</p>
+              <div class="audio-controls">
+                <button class="audio-play-btn" id="audio-play-btn"
+                        onclick="toggleAudioScene1()" aria-label="Play song">
+                  <span id="play-icon">&#9654;</span>
+                </button>
+                <div class="audio-progress-track">
+                  <div class="audio-progress-fill" id="audio-progress-fill"></div>
+                  <div class="audio-progress-thumb" id="audio-progress-thumb"></div>
+                </div>
+                <span class="audio-time" id="audio-current">0:00</span>
+              </div>
+              <audio id="scene1-audio" src="scene 1.ogg" preload="auto"></audio>
+            </div>
+          </div>
+
+          <!-- close -->
+          <button class="env-close-btn" onclick="closeEnvelope()">close &times;</button>
+        </div>
+      </div><!-- /#env -->
+
+      <p class="open-hint" id="open-hint-text">— click the seal to open —</p>
+    </div><!-- /.envelope-wrapper -->
+
+  </div><!-- /.s1-layout -->
+
+  <!-- Scroll cue -->
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 2 — Vintage Postcard with Typewriter Effect
+     ── Edit: postcard lines in script.js (pcLines[])   ──
+     ── Edit: stamp emoji, address name below            ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene2">
+  <!-- Floating lip emojis background (generated by script.js) -->
+  <div class="lips-bg" id="lips-bg"></div>
+
+  <div class="postcard">
+
+    <!-- ── LEFT: Typewriter letter text ── -->
+    <div class="postcard-left" id="postcard-lines">
+      <div class="postcard-eyebrow">✦ &nbsp; with love &nbsp; ✦</div>
+      <p id="pc-line-1"></p>
+      <p id="pc-line-2"></p>
+      <p id="pc-line-3"></p>
+      <p id="pc-line-4"></p>
+      <div class="postcard-signature">— always yours ♡</div>
+    </div>
+
+    <!-- ── DIVIDER ── -->
+    <div class="postcard-divider"></div>
+
+    <!-- ── RIGHT: Stamp + Photo + Caption + Address ── -->
+    <div class="postcard-right">
+
+      <!-- Stamp row -->
+      <div class="pc-stamp-row">
+        <div class="stamp-box">
+          <div class="stamp-perforation"></div>
+          🌷
+        </div>
+        <div class="address-lines">
+          <p class="to-label">To:</p>
+          <p class="address-name">My Dearest ♡</p>
+        </div>
+      </div>
+
+      <!-- Premium Photo Frame -->
+      <div class="pc-photo-frame">
+        <div class="pc-photo-corner pc-tl"></div>
+        <div class="pc-photo-corner pc-tr"></div>
+        <div class="pc-photo-corner pc-bl"></div>
+        <div class="pc-photo-corner pc-br"></div>
+        <div class="pc-photo-inner-glow"></div>
+        <img src="4.jpeg" alt="Us ♡" class="pc-photo-img" draggable="false" />
+      </div>
+
+      <!-- Caption below photo -->
+      <div class="pc-photo-caption">
+        <span class="pc-caption-eyes">Aankhein</span>
+        <span class="pc-caption-colon"> : </span>
+        <span class="pc-caption-wish">i want to see this</span>
+      </div>
+
+    </div><!-- /.postcard-right -->
+
+  </div><!-- /.postcard -->
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 3 — Virtual Flower Bouquet
+     ── Edit: greeting, message text, ribbon emoji       ──
+     ── Edit: flower sizes by changing class (small/tall)──
+     ── Edit: bloom effect in script.js → bloomFlowers() ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene3">
+  <div class="grid-paper"></div>
+  <div class="swirl" style="top:20%;left:5%"></div>
+  <div class="swirl" style="bottom:10%;right:8%"></div>
+
+  <!-- Falling petal emojis (generated by script.js) -->
+  <div id="falling-petals"></div>
+
+  <div class="bouquet-scene">
+
+    <!-- Left text block — edit the poem/message here -->
+    <div class="bouquet-text">
+      <p class="greeting">Hey Love!</p>  <!-- ← greeting heading -->
+      <p class="message">
+        Sending you this little<br/>virtual bouquet 🌷<br/><br/>
+        I really wish I could<br/>hand you the flowers myself,<br/><br/>
+        but until I see you again,<br/>let these carry a bit of<br/>my warmth to you.
+      </p>
+    </div>
+
+    <!-- Right: CSS flower bouquet (add/remove .flower divs to change size) -->
+    <div class="bouquet-visual">
+      <div class="flowers-row">
+
+        <!-- Flower 1: small -->
+        <div class="flower small">
+          <div class="petal-ring">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div>
+            <div class="flower-center"></div>
+          </div>
+          <div class="stem"></div>
+        </div>
+
+        <!-- Flower 2: tall -->
+        <div class="flower tall">
+          <div class="petal-ring">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div>
+            <div class="flower-center"></div>
+          </div>
+          <div class="stem"></div>
+        </div>
+
+        <!-- Flower 3: large (custom size) -->
+        <div class="flower" style="height:auto">
+          <div class="petal-ring" style="width:54px;height:54px">
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="petal" style="width:20px;height:32px"></div>
+            <div class="flower-center" style="width:22px;height:22px"></div>
+          </div>
+          <div class="stem" style="height:100px"></div>
+        </div>
+
+        <!-- Flower 4: tall -->
+        <div class="flower tall">
+          <div class="petal-ring">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div>
+            <div class="flower-center"></div>
+          </div>
+          <div class="stem"></div>
+        </div>
+
+        <!-- Flower 5: small -->
+        <div class="flower small">
+          <div class="petal-ring">
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+            <div class="petal"></div>
+            <div class="flower-center"></div>
+          </div>
+          <div class="stem"></div>
+        </div>
+
+      </div><!-- /.flowers-row -->
+
+      <!-- Wrapping paper + bow + bloom trigger tag -->
+      <div class="bouquet-wrap">
+        <div class="click-tag" onclick="bloomFlowers()">Click me 🌸</div>
+        <!-- bouquet-wrap::after adds 🎀 ribbon via CSS -->
+      </div>
+    </div><!-- /.bouquet-visual -->
+
+  </div><!-- /.bouquet-scene -->
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 4 — Photograph Memories (Premium Redesign)
+     ── 3 vintage postcard-style photo templates          ──
+     ── Quote kept · Bouquet corner · Heart animations   ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene4">
+  <!-- Scattered hearts background (generated by script.js) -->
+  <div class="hearts-scattered" id="scattered-hearts"></div>
+
+  <!-- Full scene wrapper -->
+  <div class="s4-wrapper">
+
+    <!-- ── TOP: Quote row ── -->
+    <div class="s4-quote-row">
+      <div class="s4-big-quote">
+        We keep this love in a
+        <span>PHOTOGRAPH</span>
+      </div>
+      <div class="s4-camera">📷</div>
+    </div>
+
+    <!-- ── MIDDLE: 3 Premium Photo Templates ── -->
+    <div class="s4-cards-row">
+
+      <!-- Card 1 -->
+      <div class="s4-card s4-card--1">
+        <!-- Corner ornaments -->
+        <div class="s4c-corner s4c-tl"></div>
+        <div class="s4c-corner s4c-tr"></div>
+        <div class="s4c-corner s4c-bl"></div>
+        <div class="s4c-corner s4c-br"></div>
+        <!-- Inner glow overlay -->
+        <div class="s4c-glow"></div>
+        <!-- Photo -->
+        <div class="s4c-photo-wrap">
+          <img src="1.jpeg" alt="Memory ♡" class="s4c-photo" draggable="false" />
+        </div>
+        <!-- Bottom caption -->
+        <div class="s4c-caption">
+          <p class="s4c-caption-line1">To</p>
+          <p class="s4c-caption-line2">The Doraaaaaaaaa</p>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="s4-card s4-card--2">
+        <div class="s4c-corner s4c-tl"></div>
+        <div class="s4c-corner s4c-tr"></div>
+        <div class="s4c-corner s4c-bl"></div>
+        <div class="s4c-corner s4c-br"></div>
+        <div class="s4c-glow"></div>
+        <div class="s4c-photo-wrap">
+          <img src="3.jpeg" alt="Memory ♡" class="s4c-photo" draggable="false" />
+        </div>
+        <div class="s4c-caption">
+          <p class="s4c-caption-center">better together</p>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="s4-card s4-card--3">
+        <div class="s4c-corner s4c-tl"></div>
+        <div class="s4c-corner s4c-tr"></div>
+        <div class="s4c-corner s4c-bl"></div>
+        <div class="s4c-corner s4c-br"></div>
+        <div class="s4c-glow"></div>
+        <div class="s4c-photo-wrap">
+          <img src="5.jpeg" alt="Memory ♡" class="s4c-photo" draggable="false" />
+        </div>
+        <div class="s4c-caption">
+          <p class="s4c-caption-line1">cute.. cute....</p>
+          <p class="s4c-caption-line2">With whom I want<br/>explore this world</p>
+        </div>
+      </div>
+
+    </div><!-- /.s4-cards-row -->
+
+    <!-- ── BOTTOM RIGHT: CSS Romantic Bouquet ── -->
+    <div class="s4-bouquet" aria-hidden="true">
+      <div class="s4-flowers-row">
+        <!-- Flower A -->
+        <div class="s4-flower s4f-small">
+          <div class="s4-petal-ring">
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-flower-center"></div>
+          </div>
+          <div class="s4-stem"></div>
+        </div>
+        <!-- Flower B (tall center) -->
+        <div class="s4-flower s4f-tall">
+          <div class="s4-petal-ring">
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-petal"></div>
+            <div class="s4-flower-center"></div>
+          </div>
+          <div class="s4-stem"></div>
+        </div>
+        <!-- Flower C -->
+        <div class="s4-flower s4f-mid">
+          <div class="s4-petal-ring">
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-flower-center"></div>
+          </div>
+          <div class="s4-stem"></div>
+        </div>
+        <!-- Flower D (small) -->
+        <div class="s4-flower s4f-small">
+          <div class="s4-petal-ring">
+            <div class="s4-petal"></div><div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-petal"></div><div class="s4-petal"></div>
+            <div class="s4-flower-center"></div>
+          </div>
+          <div class="s4-stem"></div>
+        </div>
+      </div>
+      <!-- Wrapping paper -->
+      <div class="s4-bouquet-wrap">
+        <span class="s4-bow">🎀</span>
+      </div>
+    </div><!-- /.s4-bouquet -->
+
+  </div><!-- /.s4-wrapper -->
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 5 — Being Better Together
+     ── Countdown hardcoded to 21 March 2025           ──
+     ── Name form removed · countdown always live      ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene5">
+  <div class="closing-content">
+
+    <!-- Pulsing heart -->
+    <div class="big-heart s5-heart-pulse">💝</div>
+
+    <!-- New heading -->
+    <h1 class="closing-title">Being Better Together</h1>
+
+    <!-- Poem -->
+    <p class="closing-sub">
+      Official if u say😏<br/>
+      21st march when we fall for each other hard.
+    </p>
+
+    <!-- Countdown — always visible, date hardcoded in script.js -->
+    <div class="countdown-box s5-cd-box">
+      <p class="countdown-label">💞 Days we've been together</p>
+      <p class="s5-since-date">since 21 March 2026</p>
+      <div class="countdown-units" id="countdown-units">
+        <div class="c-unit">
+          <div class="c-num" id="cd-days">0</div>
+          <div class="c-lbl">Days</div>
+        </div>
+        <div class="c-unit">
+          <div class="c-num" id="cd-hrs">0</div>
+          <div class="c-lbl">Hours</div>
+        </div>
+        <div class="c-unit">
+          <div class="c-num" id="cd-min">0</div>
+          <div class="c-lbl">Mins</div>
+        </div>
+        <div class="c-unit">
+          <div class="c-num" id="cd-sec">0</div>
+          <div class="c-lbl">Secs</div>
+        </div>
+      </div>
+      <div class="countdown-display" id="countdown-display">counting our days ♡</div>
+    </div>
+
+    <!-- Footer tagline -->
+    <p class="s5-footer-tag">WITH LOVE · ALWAYS · FOREVER</p>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCENE 6 — A Wish For Us (Stars & Candle)
+     ── Heading, poem & closing updated             ──
+     ── Candle click triggers JS glow + sparkle    ──
+═══════════════════════════════════════════════════════ -->
+<section id="scene6">
+
+  <!-- Starfield (star divs generated by script.js) -->
+  <div class="starfield" id="starfield">
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+  </div>
+
+  <div class="wish-content">
+
+    <!-- Main heading -->
+    <p class="wish-title">✨ A Wish For Us</p>
+
+    <!-- CSS candle — click to trigger romantic glow effect -->
+    <div class="candle-wrapper" id="candle-wrapper"
+         onclick="triggerCandleBlow(this)"
+         title="Click to blow the candle 🕯️"
+         style="cursor:pointer; position:relative;">
+      <div class="candle-glow" id="candle-glow"></div>
+      <div class="flame" id="candle-flame"></div>
+      <div class="candle-body">
+        <div class="candle-drip"></div>
+        <div class="candle-drip"></div>
+      </div>
+      <div class="candle-base"></div>
+    </div>
+
+    <!-- Closing — intimate candle-blow message -->
+    <p class="wish-closing">
+      Close your eyes and blow the candle
+      <span class="wish-closing-sub">
+        <br/>as I can have your cake there in front of you,<br/>
+        then why not the virtual blow of the candle<br/>
+        and a lot of kisses from my side&nbsp;💋
+      </span>
+    </p>
+
+  </div>
+
+</section>
+
+
+
+<!-- All interactive logic lives in script.js — edit that file to change behavior -->
+<script src="script.js"></script>
+</body>
+</html>
