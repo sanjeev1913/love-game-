@@ -687,92 +687,58 @@ function triggerCandleBlow(wrapperEl) {
 
 
 /* ==========================================================
-   9. MUSIC — Web Audio API ambient music toggle
-   ── Clicking 🎵 creates dreamy sine-wave tones + reverb ──
-   ── Change notes[] to alter the chord/scale used ──
+   9. MUSIC — Main website song player
+   ── File: "main audio .mpeg"                     ──
+   ── Click 🎵 to play / pause with smooth fade    ──
 ========================================================== */
-const musicBtn  = document.getElementById('music-btn');
-let audioCtx    = null;
-let musicNodes  = [];
+
+const musicBtn = document.getElementById('music-btn');
+
+// Create the audio element pointing to your main song
+const mainAudio       = new Audio('main audio .mpeg');
+mainAudio.loop        = true;
+mainAudio.volume      = 0;
+mainAudio.preload     = 'auto';
+
 let isPlaying   = false;
+let fadeInterval = null;
 
-function createAmbientMusic() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  // Master gain with fade-in
-  const master = audioCtx.createGain();
-  master.gain.setValueAtTime(0.0, audioCtx.currentTime);
-  master.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 2);
-  master.connect(audioCtx.destination);
-  musicNodes.push(master);
-
-  // Convolver reverb with synthetic impulse response
-  const convolver = audioCtx.createConvolver();
-  const impLen    = audioCtx.sampleRate * 3;
-  const impulse   = audioCtx.createBuffer(2, impLen, audioCtx.sampleRate);
-  for (let ch = 0; ch < 2; ch++) {
-    const d = impulse.getChannelData(ch);
-    for (let i = 0; i < impLen; i++) {
-      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impLen, 2.5);
+function fadeTo(targetVol, duration, onDone) {
+  if (fadeInterval) clearInterval(fadeInterval);
+  const steps    = 30;
+  const stepTime = duration / steps;
+  const startVol = mainAudio.volume;
+  const delta    = (targetVol - startVol) / steps;
+  let   count    = 0;
+  fadeInterval   = setInterval(() => {
+    count++;
+    mainAudio.volume = Math.min(1, Math.max(0, startVol + delta * count));
+    if (count >= steps) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+      mainAudio.volume = targetVol;
+      if (onDone) onDone();
     }
-  }
-  convolver.buffer = impulse;
-  convolver.connect(master);
-  musicNodes.push(convolver);
-
-  // Dreamy drone notes — pentatonic-ish scale
-  const notes = [220, 261.63, 329.63, 392, 440, 523.25]; // ← change to adjust tone
-  notes.forEach((freq, idx) => {
-    const osc     = audioCtx.createOscillator();
-    const gain    = audioCtx.createGain();
-    osc.type      = 'sine';
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-    // Slow vibrato via LFO
-    const lfo     = audioCtx.createOscillator();
-    const lfoGain = audioCtx.createGain();
-    lfo.frequency.value = 0.3 + idx * 0.05;
-    lfoGain.gain.value  = 1.2;
-    lfo.connect(lfoGain);
-    lfoGain.connect(osc.frequency);
-    lfo.start();
-    musicNodes.push(lfo);
-
-    gain.gain.setValueAtTime(0, audioCtx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.06 / (idx + 1), audioCtx.currentTime + 1 + idx * 0.5);
-
-    osc.connect(gain);
-    gain.connect(convolver);
-    gain.connect(master);
-    osc.start();
-    musicNodes.push(osc, gain, lfoGain);
-  });
-}
-
-function stopAmbientMusic() {
-  if (!audioCtx) return;
-  const master = musicNodes[0];
-  if (master && master.gain) {
-    master.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
-  }
-  setTimeout(() => {
-    musicNodes.forEach(n => { try { n.disconnect(); if (n.stop) n.stop(); } catch(e){} });
-    musicNodes = [];
-    audioCtx.close();
-    audioCtx = null;
-  }, 1600);
+  }, stepTime);
 }
 
 musicBtn.addEventListener('click', () => {
   if (isPlaying) {
-    stopAmbientMusic();
+    // Fade out then pause
+    fadeTo(0, 1200, () => {
+      mainAudio.pause();
+    });
     isPlaying = false;
     musicBtn.textContent = '🎵';
     musicBtn.classList.remove('playing');
   } else {
-    createAmbientMusic();
+    // Play then fade in
+    mainAudio.play().catch(() => {});
+    fadeTo(0.72, 1500);
     isPlaying = true;
     musicBtn.textContent = '🎶';
     musicBtn.classList.add('playing');
   }
 });
+
+
